@@ -1,0 +1,448 @@
+<apex:page controller="CustomArticleManagementController" showHeader="false" standardStylesheets="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">    
+
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="en">    
+
+<head>
+  <title>Custom Article Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <apex:stylesheet value="{!URLFOR($Resource.s17, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+</head>    
+
+<body>    
+
+  <!-- REQUIRED SLDS WRAPPER -->
+  <div class="s17">    
+
+    <!-- MASTHEAD -->
+    <!-- / MASTHEAD -->    
+
+    <!-- PRIMARY CONTENT WRAPPER -->
+    <div class="slds-grid slds-grid--align-left">    
+      <div class="slds-button-group" role="group">
+        <button class="slds-button slds-button--neutral" onclick="handleCloneBtnClick();">Clone</button>
+      </div>
+    </div>
+
+    <div class="slds-grid slds-grid--align-center">    
+      <table class="slds-table slds-table--bordered slds-table--fixed-layout" role="grid">
+        <thead>
+          <tr class="slds-line-height--reset">
+            <th scope="col" style="width:3.25rem;" class="slds-text-align--right">
+              <div class="slds-th__action slds-th__action--form">
+                <span class="slds-checkbox">
+                  <input type="checkbox" name="options" id="checkbox-1732" onclick="handleSelectAllArticlesCheckboxClick();" />
+                  <label class="slds-checkbox__label" for="checkbox-1732" >
+                    <span class="slds-checkbox--faux"></span>
+                    <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                  </label>
+                </span>
+              </div>
+            </th>
+            <th focusable="true" class="slds-is-sortable slds-is-resizable slds-text-title--caps slds-hide" scope="col">
+              <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                <span class="slds-truncate" title="Id">Id</span>
+              </a>
+            </th>
+            <th focusable="true" class="slds-is-sortable slds-is-resizable slds-text-title--caps slds-hide" scope="col">
+              <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                <span class="slds-truncate" title="KnowledgeArticleId">KnowledgeArticleId</span>
+              </a>
+            </th>
+            <th focusable="true" class="slds-is-sortable slds-is-resizable slds-text-title" scope="col">
+              <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                <span class="slds-truncate" title="Title">Title</span>
+              </a>
+            </th>
+            <th focusable="true" class="slds-is-sortable slds-is-resizable slds-text-title" scope="col">
+              <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                <span class="slds-truncate" title="ArticleType">ArticleType</span>
+              </a>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="articleGridBody"></tbody>
+      </table>
+    </div>
+
+    <div class="slds-grid slds-grid--align-center slds-hide" id="languageSelectionModal">
+      <div role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+          <div class="slds-modal__header">
+            <h2 id="header43" class="slds-text-heading--medium">Submit For Translation</h2>
+          </div>
+          <div class="slds-modal__content slds-p-around--medium">
+            <p>1 article selected.</p>
+            <p>Select the target languages for these articles and assign them to a queue or person.
+              Translations assigned to a queue are usually exported and translations assigned to a person are usually translated internally.</p>
+              <div class="slds-grid slds-grid--align-center" style="padding-bottom: 8px;">    
+                <form class="slds-form--inline">
+                  <div class="slds-form-element__control">
+                    <span class="slds-checkbox">
+                      <input type="checkbox" name="options" id="selectDefaultDueDate" checked="" />
+                      <label class="slds-checkbox__label" for="selectDefaultDueDate">
+                        <span class="slds-checkbox--faux"></span>
+                        <span class="slds-form-element__label" style="padding-left: 4px;">Use the same due date: </span>
+                      </label>
+                    </span>
+                  </div>
+                  <div class="slds-form-element">
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+                        <svg aria-hidden="true" class="slds-input__icon slds-icon-text-default">
+                            <use xlink:href="{!URLFOR($Resource.s17, 'assets/icons/utility-sprite/svg/symbols.svg#event')}"></use>
+                        </svg>
+                        <input id="date" class="slds-input" placeholder="Pick a Date" label="Date Picker Label" type="text"/>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div class="slds-grid slds-grid--align-center">    
+                <table class="slds-table slds-table--bordered slds-table--fixed-layout" role="grid">
+                  <thead>
+                    <tr class="slds-line-height--reset">
+                      <th scope="col" style="width:3.25rem;" class="slds-text-align--right">
+                        <div class="slds-th__action slds-th__action--form">
+                          <span class="slds-checkbox">
+                            <input type="checkbox" name="options" id="checkbox-1733" onclick="handleSelectAllLanguagesCheckboxClick();" />
+                            <label class="slds-checkbox__label" for="checkbox-1733" >
+                              <span class="slds-checkbox--faux"></span>
+                              <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                            </label>
+                          </span>
+                        </div>
+                      </th>
+                      <th scope="col">
+                        <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                          <span class="slds-truncate" title="Language">Language</span>
+                        </a>
+                      </th>
+                      <th scope="col">
+                        <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                          <span class="" title="Assign To">Assign To</span>
+                        </a>
+                      </th>
+                      <th scope="col">
+                        <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset" tabindex="0">
+                          <span class="slds-truncate" title="Due Date">Due Date</span>
+                        </a>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="languageGrid"></tbody>
+                </table>
+              </div>
+              <p style="padding-top: 15px; padding-bottom: 8px;"><span style="color: red; padding-right:4px;">*</span> Only for articles in languages other than <span id="default_lang"></span></p>
+              <div class="slds-form-element__control">
+                <span class="slds-checkbox">
+                  <input type="checkbox" name="options" id="sendNotificationEmail" checked="" />
+                  <label class="slds-checkbox__label" for="sendNotificationEmail">
+                    <span class="slds-checkbox--faux"></span>
+                    <span class="slds-form-element__label" style="padding-left: 4px;">Send notification email</span>
+                  </label>
+                </span>
+              </div>
+          </div>
+          <div class="slds-modal__footer">
+            <button class="slds-button slds-button--neutral" onclick="handleLanguageSelectionModalOKBtnClick();">OK</button>
+            <button class="slds-button slds-button--neutral" onclick="handleLanguageSelectionModalCloseBtnClick();">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div class="slds-backdrop slds-backdrop--open"></div>
+    </div>
+
+    <div class="slds-grid slds-grid--align-center slds-hide" id="spinner">
+      <div class="slds-spinner_container">
+        <div role="status" class="slds-spinner slds-spinner--medium slds-spinner--brand">
+          <span class="slds-assistive-text">Loading</span>
+          <div class="slds-spinner__dot-a"></div>
+          <div class="slds-spinner__dot-b"></div>
+        </div>
+      </div>
+    </div>
+    <!-- / PRIMARY CONTENT WRAPPER -->    
+
+  </div>
+  <!-- / REQUIRED SLDS WRAPPER -->    
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" />
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+  $(document).ready(function() {
+      $('#date').datepicker();
+  });
+</script>
+<script>
+  function handleLanguageSelectionModalCloseBtnClick() {
+    hideLanguageSelectionModal();
+  }
+
+  function handleLanguageSelectionModalOKBtnClick() {
+    hideLanguageSelectionModal();
+    showSpinner();
+
+    CustomArticleManagementController.cloneKnowledgeArticleData(
+      JSON.stringify(selectedArticles),
+      function(result, event) { 
+        if(event.type === 'exception') { 
+          console.log("exception"); 
+          console.log(event); 
+        } else if(event.status) { 
+          hideSpinner();
+          console.log(result); 
+        } else { 
+          console.log(event.message); 
+        } 
+      }
+    );
+  }
+
+  function hideLanguageSelectionModal() {
+    $("#languageSelectionModal").addClass("slds-hide");
+  }
+
+  function showLanguageSelectionModal() {
+    $("#languageSelectionModal").removeClass("slds-hide");
+  }
+
+  function hideSpinner() {
+    $("#spinner").addClass("slds-hide");
+  }
+
+  function showSpinner() {
+    $("#spinner").removeClass("slds-hide");
+  }
+
+  $(document).ready(function() {
+    CustomArticleManagementController.retrieveSupportedLanguages(
+      function(result, event) { 
+        if(event.type === 'exception') { 
+          console.log("exception"); 
+          console.log(event); 
+        }else if(event.status) { 
+          //console.log(result); 
+          var langs = result.languages;
+          //console.log(langs);
+          var size = langs.length;
+          $.each(langs, function(i, v){
+            var lang = v.name;
+            console.log(lang);
+            CustomArticleManagementController.retreiveKnowledgeArticleVersionList(
+              lang,
+              function(results, event) { 
+                if(event.type === 'exception') { 
+                  console.log("exception"); 
+                  console.log(event); 
+                } else if(event.status) { 
+                  $.each(results, function(i, result) { 
+                    console.log(result); 
+                    var body = '<tr class="slds-hint-parent">'+
+                      '<td role="gridcell" class="slds-text-align--right" style="width:3.25rem;">'+
+                        '<span class="slds-checkbox">'+
+                          '<input type="checkbox" name="options" id="s'+i+'" onclick="handleSelectSingleArticleCheckboxClick(this);"/>'+
+                          '<label class="slds-checkbox__label" for="s'+i+'">'+
+                            '<span class="slds-checkbox--faux"></span>'+
+                            '<span class="slds-form-element__label slds-assistive-text">Select item 1</span>'+
+                          '</label>'+
+                        '</span>'+
+                      '</td>'+
+                      '<th scope="row" class="slds-hide">'+
+                        '<div class="slds-truncate" title="Id"><a href="javascript:void(0);">'+result.Id+'</a></div>'+
+                      '</th>'+
+                      '<th role="gridcell" class="slds-hide">'+
+                        '<div class="slds-truncate" title="Knowledge Article Id">'+result.KnowledgeArticleId+'</div>'+
+                      '</th>'+
+                      '<th role="gridcell">'+
+                        '<div class="slds-truncate" title="Title">'+result.Title+'</div>'+
+                      '</th>'+
+                      '<th role="gridcell">'+
+                        '<div class="slds-truncate" title="Type">'+result.ArticleType+'</div>'+
+                      '</th>'+
+                    '</tr>';
+                    $("#articleGridBody").append(body);
+                  }); 
+                } else { 
+                  console.log(event.message); 
+                } 
+              }
+            );
+          });
+        } else { 
+          console.log(event.message); 
+        } 
+      }
+    );
+  });
+
+  var selectedArticles = [];
+
+  function handleSelectAllArticlesCheckboxClick() {
+    console.log('--all articles--');
+  }
+
+  function handleSelectSingleArticleCheckboxClick(e) {
+    //console.log('hi');
+    //console.log(e);
+    var isChecked = $(e).prop('checked');
+    console.log(isChecked);
+    
+    var $row = $(e).closest("tr");
+    //console.log($row);
+    
+    var tempArr = [];
+    $($row).find("th").each(function(i, v){
+      //console.log(i, $(v).text());
+      tempArr.push($(v).text());
+    });
+    
+    var article = {
+      "kavId" : tempArr[0],
+      "kaId" : tempArr[1],
+      "aType" : tempArr[3]
+    };
+
+    if(isChecked) {
+      //console.log(article);
+      selectedArticles.push(article);
+      //console.log(selectedArticles);
+    } else {
+      var toRemoveItemIndex;
+      // find article in selectedArticles and remove it
+      $.each(selectedArticles, function(i, v){
+        console.log(article.kavId);
+        console.log(v.kavId);
+        if(v.kavId == article.kavId){
+          console.log(i);
+          toRemoveItemIndex = i;
+        }
+      });
+      selectedArticles.splice(toRemoveItemIndex, 1);
+    }
+    console.log(selectedArticles);
+  }
+
+  function handleCloneBtnClick() {
+    showSpinner();
+
+    loadLanguages();
+  }
+
+  function loadLanguages() {
+    CustomArticleManagementController.retrieveSupportedLanguages(
+      function(result, event) { 
+        if(event.type === 'exception') { 
+          console.log("exception"); 
+          console.log(event); 
+        }else if(event.status) { 
+          console.log(result); 
+          
+          if(result) {
+            hideSpinner();
+            showLanguageSelectionModal();
+
+            var settings = result;
+            $("#default_lang").text(settings.langCodeToLanguage[settings.defaultLanguage]);
+            $.each(settings.languages, function(i, v) {
+              console.log(v); 
+              var body = '<tr class="slds-hint-parent">'+
+                '<td role="gridcell" class="slds-text-align--right" style="width:3.25rem;">'+
+                  '<span class="slds-checkbox">'+
+                    '<input type="checkbox" name="options" id="c'+i+'" onclick="handleSelectSingleLanguageCheckboxClick(this);" />'+
+                    '<label class="slds-checkbox__label" for="c'+i+'">'+
+                      '<span class="slds-checkbox--faux"></span>'+
+                      '<span class="slds-form-element__label slds-assistive-text">Select item 1</span>'+
+                    '</label>'+
+                  '</span>'+
+                '</td>'+
+                '<th scope="row">'+
+                  '<div class="slds-truncate" title="Id">';
+
+                    if(settings.defaultLanguage == v.name) {
+                      body += '<a href="javascript:void(0);">'+settings.langCodeToLanguage[v.name] +'<span style="color: red; padding-left:4px;">*</span></a>';
+                    }else {
+                      body += '<a href="javascript:void(0);">'+settings.langCodeToLanguage[v.name]+'</a>';
+                    }
+
+                  body += '</div>'+
+                '</th>'+
+                '<th role="gridcell">'+
+                  '<div class="slds-truncate" title="Assign To"><input type="text" class="slds-input" value="{!$User.FirstName+' '+$User.LastName}" placeholder="enter full-name of the assignee" /></div>'+
+                '</th>'+
+                '<th role="gridcell">'+
+                  '<div class="slds-truncate" title="Due Date">'+
+                    '<div class="slds-form-element">'+
+                      '<div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">'+
+                            '<svg aria-hidden="true" class="slds-input__icon slds-icon-text-default">'+
+                                '<use xlink:href="{!URLFOR($Resource.s17, 'assets/icons/utility-sprite/svg/symbols.svg#event')}"></use>'+
+                            '</svg>'+
+                            '<input id="ldate'+i+'" class="slds-input" placeholder="Pick a Date" label="Date Picker Label" type="text"/>'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+
+                '</th>'+
+              '</tr>';
+              $("#languageGrid").append(body);
+            });
+            $("[id^=ldate]").each(function() {
+              console.log(this);
+              $(this).datepicker();
+            });
+          } 
+        } else { 
+          console.log(event.message); 
+        } 
+      }
+    );
+  }
+
+  var selectedLanguages = [];
+
+  function handleSelectAllLanguagesCheckboxClick() {
+    console.log('--all languages--');
+  }
+
+  function handleSelectSingleLanguageCheckboxClick(e) {
+    //console.log('hi');
+    //console.log(e);
+    var isChecked = $(e).prop('checked');
+    console.log(isChecked);
+    
+    var $row = $(e).closest("tr");
+    //console.log($row);
+    
+    var tempArr = [];
+    $($row).find("th").each(function(i, v){
+      console.log(i, $(v).text());
+      //tempArr.push($(v).text());
+    });
+    
+    /*var language = {
+      "kavId" : tempArr[0],
+      "kaId" : tempArr[1],
+      "aType" : tempArr[3]
+    };
+
+    if(isChecked) {
+      //console.log(language);
+      selectedLanguages.push(language);
+      //console.log(selectedLanguages);
+    } else {
+      var toRemoveItemIndex;
+      // find language in selectedLanguages and remove it
+      $.each(selectedLanguages, function(i, v){
+        console.log(article.kavId);
+        console.log(v.kavId);
+        if(v.kavId == article.kavId){
+          console.log(i);
+          toRemoveItemIndex = i;
+        }
+      });
+      selectedLanguages.splice(toRemoveItemIndex, 1);
+    }
+    console.log(selectedLanguages);*/
+  }
+</script>
+</html>
+</apex:page>
